@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberDefence - Local Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary-color: #667eea;
+            --primary-light: #764ba2;
+            --secondary-color: #f093fb;
+            --accent-color: #4facfe;
+            --bg-primary: #fafbfc;
+            --bg-secondary: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+            --text-light: #a0aec0;
+            --user-message-bg: #667eea;
+            --user-message-text: #ffffff;
+            --assistant-message-bg: #f7fafc;
+            --assistant-message-border: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--assistant-message-border);
+            padding: var(--spacing-xl) 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+            text-align: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            color: var(--primary-color);
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--bg-gradient);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            margin-top: var(--spacing-xl);
+            margin-bottom: var(--spacing-xl);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: var(--spacing-xl);
+            overflow-y: auto;
+            max-height: 70vh;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: var(--spacing-lg);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .message-content {
+            max-width: 85%;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+            font-size: 0.875rem;
+        }
+
+        .assistant-info {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .assistant-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--primary-color);
+        }
+
+        .assistant-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .message-time {
+            color: var(--text-light);
+            font-size: 0.75rem;
+        }
+
+        .message-text {
+            line-height: 1.7;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        .user-message {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .user-message .message-content {
+            background: var(--user-message-bg);
+            color: var(--user-message-text);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        .user-message .message-header {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .user-message .message-time {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .assistant-message {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .assistant-message .message-content {
+            background: var(--assistant-message-bg);
+            border: 1px solid var(--assistant-message-border);
+            color: var(--text-primary);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-lg);
+            border-bottom-left-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+            animation: slideInLeft 0.4s ease-out;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-md) 0;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        .typing-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .input-container {
+            padding: var(--spacing-xl);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--assistant-message-border);
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            background: var(--bg-primary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-sm);
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .message-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 1rem;
+            color: var(--text-primary);
+            padding: var(--spacing-md);
+            font-family: inherit;
+        }
+
+        .message-input::placeholder {
+            color: var(--text-light);
+        }
+
+        .message-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .send-button {
+            background: var(--bg-gradient);
+            border: none;
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .send-button:active {
+            transform: translateY(0);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 var(--spacing-sm);
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .chat-container {
+                border-radius: var(--radius-lg);
+                margin: var(--spacing-md);
+            }
+            
+            .chat-messages {
+                padding: var(--spacing-lg);
+                max-height: 60vh;
+            }
+            
+            .input-container {
+                padding: var(--spacing-lg);
+            }
+            
+            .message-content {
+                max-width: 95%;
+            }
+        }
+
+        .demo-notice {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: var(--spacing-md);
+            margin: var(--spacing-md);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L22 8V16C22 22.6274 16.6274 28 10 28C3.37258 28 -2 22.6274 -2 16V8L12 2Z"/>
+                        <path d="M8 16L10 18L16 12"/>
+                    </svg>
+                    <h1 class="title">CyberDefence</h1>
+                </div>
+                <p class="subtitle">Your Personal Cybersecurity Assistant</p>
+            </div>
+        </header>
+
+        <!-- Demo Notice -->
+        <div class="demo-notice">
+            🎉 <strong>Demo Mode</strong> - This is a local test version. The full React app with GROQ API will be available once Node.js is properly configured.
+        </div>
+
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome message -->
+                <div class="message assistant-message">
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="assistant-info">
+                                <svg class="assistant-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                    <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                    <line x1="15" y1="9" x2="15.01" y2="9"/>
+                                </svg>
+                                <span class="assistant-name">CyberSafe Buddy</span>
+                            </div>
+                            <span class="message-time" id="welcomeTime"></span>
+                        </div>
+                        <div class="message-text">
+                            👋 Hi there! I'm CyberSafe Buddy, your personal cybersecurity assistant. I'm here to help you protect your digital life with simple, practical advice.
+
+💡 I can help you with:
+• Securing your social media accounts (WhatsApp, Facebook, Instagram)
+• Creating strong passwords and using 2FA
+• Spotting phishing scams and fake links
+• Protecting your phone, laptop, and Wi-Fi
+• Safe online banking and shopping
+
+What would you like to know about staying safe online?
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input area -->
+            <div class="input-container">
+                <form id="chatForm" class="chat-form">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="messageInput" 
+                            placeholder="Ask me about cybersecurity..."
+                            autocomplete="off"
+                            maxlength="500"
+                        >
+                        <button type="submit" id="sendButton" class="send-button">
+                            <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 2L11 13"/>
+                                <path d="M22 2L15 22L11 13L2 9L22 2Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Demo functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageInput = document.getElementById('messageInput');
+            const chatForm = document.getElementById('chatForm');
+            const sendButton = document.getElementById('sendButton');
+            const welcomeTime = document.getElementById('welcomeTime');
+
+            // Set welcome message time
+            welcomeTime.textContent = new Date().toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            // Demo responses
+            const demoResponses = [
+                "🔐 Here's how to create a strong password: Use at least 12 characters with uppercase, lowercase, numbers, and symbols. Avoid personal info like birthdays!",
+                "📱 To secure your WhatsApp: Enable Two-Step Verification in Settings → Account, set a 6-digit PIN, and never share verification codes.",
+                "🎣 Phishing signs: Urgent requests, suspicious links, poor grammar, asking for passwords or personal info. When in doubt, don't click!",
+                "💻 Keep your devices safe: Use strong passwords, enable 2FA, keep software updated, and be careful with public Wi-Fi.",
+                "🏦 For online banking: Use a secure connection (https://), never share credentials, and monitor your accounts regularly."
+            ];
+
+            let isTyping = false;
+
+            chatForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const message = messageInput.value.trim();
+                if (!message || isTyping) return;
+
+                // Add user message
+                addMessage(message, 'user');
+                messageInput.value = '';
+
+                // Show typing indicator
+                showTypingIndicator();
+
+                // Simulate AI response
+                setTimeout(() => {
+                    hideTypingIndicator();
+                    const randomResponse = demoResponses[Math.floor(Math.random() * demoResponses.length)];
+                    addMessage(randomResponse, 'assistant');
+                }, 1500);
+            });
+
+            function addMessage(content, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                const messageHeader = document.createElement('div');
+                messageHeader.className = 'message-header';
+                
+                if (sender === 'assistant') {
+                    const assistantInfo = document.createElement('div');
+                    assistantInfo.className = 'assistant-info';
+                    assistantInfo.innerHTML = `
+                        <svg class="assistant-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                            <line x1="9" y1="9" x2="9.01" y2="9"/>
+                            <line x1="15" y1="9" x2="15.01" y2="9"/>
+                        </svg>
+                        <span class="assistant-name">CyberSafe Buddy</span>
+                    `;
+                    messageHeader.appendChild(assistantInfo);
+                }
+                
+                const messageTime = document.createElement('span');
+                messageTime.className = 'message-time';
+                messageTime.textContent = new Date().toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                messageHeader.appendChild(messageTime);
+                
+                const messageText = document.createElement('div');
+                messageText.className = 'message-text';
+                messageText.textContent = content;
+                
+                messageContent.appendChild(messageHeader);
+                messageContent.appendChild(messageText);
+                messageDiv.appendChild(messageContent);
+                
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+
+            function showTypingIndicator() {
+                isTyping = true;
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'message assistant-message';
+                typingDiv.id = 'typingIndicator';
+                typingDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="assistant-info">
+                                <svg class="assistant-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                    <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                    <line x1="15" y1="9" x2="15.01" y2="9"/>
+                                </svg>
+                                <span class="assistant-name">CyberSafe Buddy</span>
+                            </div>
+                            <span class="message-time">${new Date().toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            })}</span>
+                        </div>
+                        <div class="typing-indicator">
+                            <div class="typing-dots">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <span class="typing-text">CyberSafe Buddy is thinking...</span>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(typingDiv);
+                scrollToBottom();
+            }
+
+            function hideTypingIndicator() {
+                isTyping = false;
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            function scrollToBottom() {
+                setTimeout(() => {
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
